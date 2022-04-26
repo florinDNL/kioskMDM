@@ -1,4 +1,4 @@
-﻿function PrintCfg{
+function PrintCfg{
     Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_AssignedAccess"
 }
 
@@ -11,23 +11,35 @@ function ApplyCfg{
         Write-Host "Invalid Input"        
         ApplyCfg
     }
-    else{      
-        $Path   = Read-Host "Enter the path to XML File"
-        $XML    = Get-Content -Path $Path
-        $escXML = [System.Security.SecurityElement]::Escape($XML)
+    else{
+
+        try{                         
+            $escXML = Get-XML
+        }
+        catch{
+            Write-Host "`n"$_ -ForeGroundColor DarkRed
+            break
+        }
 
         if     ($type -eq 1){
             $aacsp.Configuration = $escXML
         }
         elseif ($type -eq 2){
-            $aacsp.ShellLauncher = $escXML
-        }
-
+            $prodname = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ProductName
+            if ($prodname -like "*Enterprise*" -or $prodname -like "*Education*"){
+                $aacsp.ShellLauncher = $escXML                
+            }
+            else{                  
+                Write-Host "Only Windows 10 Enterprise or Education are licensed to use Shell Launcher. You are currently using " $prodname -ForegroundColor DarkRed
+                break
+            }
+        }        
+        
         Set-CimInstance -CimInstance $aacsp
-
-        Write-Host "The current configuration is:"
+            
+        Write-Host "`nThe current configuration is:"
         Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_AssignedAccess"
-    }
+    }    
 }
 
 function ClearCfg{
@@ -75,10 +87,18 @@ function Format-XML ([xml]$xml, $indent=2) #from https://devblogs.microsoft.com/
 {
     $StringWriter = New-Object System.IO.StringWriter
     $XmlWriter = New-Object System.XMl.XmlTextWriter $StringWriter
-    $xmlWriter.Formatting = “indented”
+    $xmlWriter.Formatting = â€œindentedâ€
     $xmlWriter.Indentation = $Indent
     $xml.WriteContentTo($XmlWriter)
     $XmlWriter.Flush()
     $StringWriter.Flush()
     return $StringWriter.ToString()
+}
+
+function Get-XML{
+    $Path   = Read-Host "Enter the path to XML File"
+    $XML    = Get-Content -Path $Path -ErrorAction Stop
+    $escXML = [System.Security.SecurityElement]::Escape($XML) 
+
+    return $escXML
 }
