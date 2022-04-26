@@ -82,6 +82,13 @@ function ExtractCfg{
     }
 }
 
+function Get-XML{
+    $Path   = Read-Host "Enter the path to XML File"
+    $XML    = Get-Content -Path $Path -ErrorAction Stop
+    $escXML = [System.Security.SecurityElement]::Escape($XML) 
+
+    return $escXML
+}
 
 function Format-XML ([xml]$xml, $indent=2) #from https://devblogs.microsoft.com/powershell/format-xml/
 {
@@ -93,12 +100,4 @@ function Format-XML ([xml]$xml, $indent=2) #from https://devblogs.microsoft.com/
     $XmlWriter.Flush()
     $StringWriter.Flush()
     return $StringWriter.ToString()
-}
-
-function Get-XML{
-    $Path   = Read-Host "Enter the path to XML File"
-    $XML    = Get-Content -Path $Path -ErrorAction Stop
-    $escXML = [System.Security.SecurityElement]::Escape($XML) 
-
-    return $escXML
 }
