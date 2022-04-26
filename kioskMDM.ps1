@@ -87,7 +87,7 @@ function Format-XML ([xml]$xml, $indent=2) #from https://devblogs.microsoft.com/
 {
     $StringWriter = New-Object System.IO.StringWriter
     $XmlWriter = New-Object System.XMl.XmlTextWriter $StringWriter
-    $xmlWriter.Formatting = â€œindentedâ€
+    $xmlWriter.Formatting = “indented”
     $xmlWriter.Indentation = $Indent
     $xml.WriteContentTo($XmlWriter)
     $XmlWriter.Flush()
