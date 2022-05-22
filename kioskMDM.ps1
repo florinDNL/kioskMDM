@@ -137,16 +137,19 @@ function ExtractCfg
         Write-Host "No Multi-App or Shell Launcher Configuration found on present machine"
         
     }
+    
 }
 
 
 function Get-XML
 {
+
     $Path   = Read-Host "Enter the path to XML File"
     $XML    = Get-Content -Path $Path -ErrorAction Stop
     $escXML = [System.Security.SecurityElement]::Escape($XML) 
 
     return $escXML
+    
 }
 
 
